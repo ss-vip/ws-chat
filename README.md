@@ -1,4 +1,4 @@
-### ws-chat 聊天室
+### ws-Chat 聊天室
 
 使用 NodeJS Express, ws 套件， 透過 Websocket 技術實現多人即時線上聊天。
 
@@ -7,7 +7,7 @@
 - 有即時線上人數顯示
 - 有發射火箭的 Donate 抖內送禮特效
 
-> DEMO WEB: <https://localhost>
+> DEMO WEB: [https://demo.koyeb.app/](https://demo.koyeb.app/)
 
 ---
 

@@ -3,7 +3,7 @@ const express = require("express");
 const http = require('http');
 const WebSocket = require("ws");
 const path = require("path");
-const port = process.env.PORT || 80; // TODO Change your env setting.
+const port = process.env.PORT || 8080; // TODO Change your env setting.
 const app = express();
 
 app.use(express.static(path.join(__dirname, "public")));
