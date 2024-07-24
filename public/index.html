@@ -88,7 +88,8 @@
         let msgWindow = ref("")
         let ws
         const port = ':' + location.port
-        const url = 'ws://' + location.hostname + port
+        const http = location.protocol === "http:" ? "ws://" : "wss://"
+        const url = http + location.hostname + port
 
         // 訪客需先取暱稱
         if(!userName.value || !ws) { inputName() }
@@ -120,7 +121,7 @@
 
       // 初始連線 WebSocket
       function connectWebSocket() {
-        ws = new WebSocket('ws://' + window.location.host);
+        ws = new WebSocket(url);
 
         ws.onopen = function() {
           console.log('WebSocket connection opened');
