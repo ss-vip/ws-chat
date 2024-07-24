@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+  <title>ws-Chat</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+  <link href="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div id="q-app">
+    <div class="q-pa-md">
+      <q-layout view="lHh lpr lFf" container style="height: 400px" class="shadow-2 rounded-borders">
+        <q-header elevated>
+          <q-toolbar>
+            <q-avatar>
+              <div class="q-gutter-md" style="font-size: 2em">
+                <q-icon name="forum" />
+              </div>
+            </q-avatar>
+
+            <q-toolbar-title>
+              ws-Chat 即時聊天 - {{ userName }}
+            </q-toolbar-title>
+
+            <q-avatar title="線上人數" >
+              <div class="q-gutter-md">
+                <q-icon name="people_alt" style="font-size: 1.6em;"/>
+              </div>
+              <q-badge color="red" floating transparent>
+                {{ onlineCount }}
+              </q-badge>
+            </q-avatar>
+
+            <q-btn flat round dense icon="logout" @click="disconnectWebSocket" title="離開聊天" style="padding-left: 1.2em;"></q-btn>
+          </q-toolbar>
+        </q-header>
+
+        <q-page-container>
+          <q-page padding>
+            <!-- 聊天訊息 -->
+            <p style="font-size:16px;white-space: pre-line;">{{ msgWindow }}</p>
+          </q-page>
+        </q-page-container>
+      </q-layout>
+    </div>
+
+    <div class="q-pa-md">
+      <q-input standout bottom-slots v-model="inputText" label="輸入框" maxlength="200" @keyup.enter="sendInputMsg">
+        <template v-slot:before>
+          <q-avatar>
+            <span class="material-icons" style="font-size: 2.2em">
+              sentiment_satisfied_alt
+            </span>
+          </q-avatar>
+        </template>
+
+        <template v-slot:append>
+          <q-btn round dense flat icon="rocket" style="color: red; font-size:1em; padding-right: 5px;" @click="sendRocket" title="抖內發射"></q-btn>
+          <q-icon v-if="inputText !== ''" name="close" @click="inputText = ''" class="cursor-pointer" title="清空" />
+        </template>
+
+        <template v-slot:after>
+          <q-btn round dense flat icon="send" @click="sendInputMsg" title="發送訊息" />
+        </template>
+      </q-input>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.umd.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/lang/zh-TW.umd.prod.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const { useQuasar } = Quasar
+    const { ref, beforeCreate } = Vue
+
+    const app = Vue.createApp({
+      setup () {
+        Quasar.lang.set(Quasar.lang.zhTW)
+        const $q = useQuasar()
+
+        const userId = ref("admin")
+        let userName = ref("")
+        let onlineCount = ref(0)
+        let inputText = ref("")
+        let msgWindow = ref("")
+        let ws
+        const port = ':' + location.port
+        const url = 'ws://' + location.hostname + port
+
+        // 訪客需先取暱稱
+        if(!userName.value || !ws) { inputName() }
+        function inputName () {
+          connectWebSocket()
+          $q.dialog({
+            title: '訪客您好',
+            message: '請先輸入暱稱',
+            prompt: {
+              model: userName,
+              type: 'text' // optional
+            },
+            cancel: false,
+            persistent: true
+          }).onOk(data => {
+            let notifyMsg = "抱歉，錯誤的暱稱，請重新輸入"
+            if(!userName.value) {
+              inputName()
+            } else {
+              notifyMsg = "Welcome! " + userName.value
+              sendWS("setName", userName.value)
+            }
+            $q.notify({
+              message: notifyMsg,
+              color: 'purple'
+            })
+          })
+        }
+
+      // 初始連線 WebSocket
+      function connectWebSocket() {
+        ws = new WebSocket('ws://' + window.location.host);
+
+        ws.onopen = function() {
+          console.log('WebSocket connection opened');
+        };
+
+        ws.onmessage = response => {
+          let res = JSON.parse(response.data)
+
+          switch (res.event) {
+            // 線上人數
+            case "onlineCount":
+              onlineCount.value = res.data;
+              break;
+
+            // 火箭特效
+            case "getRocket":
+              msgWindow.value += res.data + "\n";
+              getRocket();
+              break;
+
+            // 聊天視窗訊息
+            default:
+              msgWindow.value += res.data + "\n";
+              break;
+          }
+        }
+
+        ws.onclose = function() {
+          console.log('WebSocket connection closed');
+        };
+      }
+
+      // 中斷連線
+      async function disconnectWebSocket() {
+        if (ws) {
+          await ws.close()
+          userName.value = null
+          inputName()
+        }
+      }
+
+      // 發送聊天
+      function sendInputMsg() {
+        sendWS('message', inputText.value)
+        inputText.value = ''
+      }
+
+      // 發射火箭
+      function sendRocket() {
+        $q.notify({
+          message: '發射火箭',
+          color: 'green'
+        })
+        sendWS('sendRocket', userName.value)
+      }
+
+      // 發送資料
+      function sendWS(event, data) {
+        if(ws && event && data){
+          ws.send(JSON.stringify({event: event, data: data}));
+        } else {
+          $q.notify({
+            message: '訊息發送失敗',
+            color: 'purple'
+          })
+        }
+      }
+
+      // 火箭特效
+      function getRocket() {
+        confetti();
+        setTimeout(() => {
+          confetti.reset();
+        }, 3000);
+      }
+
+      return {
+          userName,
+          onlineCount,
+          inputText,
+          msgWindow,
+          sendInputMsg,
+          sendWS,
+          connectWebSocket,
+          disconnectWebSocket,
+          sendRocket,
+          getRocket
+        }
+      }
+    })
+
+    app.use(Quasar, { config: {} })
+    app.mount('#q-app')
+  </script>
+</body>
+</html>
