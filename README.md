@@ -7,7 +7,9 @@
 - 有即時線上人數顯示
 - 有發射火箭的 Donate 抖內送禮特效
 
-> DEMO WEB: [https://demo.koyeb.app/](https://demo.koyeb.app/)
+> DEMO WEB: [https://ws-chat-11hk.onrender.com/](https://ws-chat-11hk.onrender.com/)
+
+`* 也許需要些時間讓服務甦醒`
 
 ---
 
