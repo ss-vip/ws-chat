@@ -29,7 +29,7 @@ wss.on("connection", (ws, req) => {
   const userId = req.headers["sec-websocket-key"]?.toString().substring(0, 8);
   userList.push([userId, "Guest"]);
   const userIndex = userList.findIndex((element) => element[0] == userId);
-  console.log("有人上線,目前人數:" + onLineCount)
+  console.log("有人上線,目前人數:" + onLineCount + ' - ' + getDateTime())
 
   // 當收到 client 消息時
   ws.on("message", (data) => {
@@ -59,7 +59,7 @@ wss.on("connection", (ws, req) => {
     sendToAll("onlineCount", onLineCount);
     sendToAll("message", "=== 掰掰 " + userList[userIndex][1] + " 離開聊天室 ===");
     userList.splice(userIndex, 1);
-    console.log("有人下線,目前人數:" + onLineCount)
+    console.log("有人下線,目前人數:" + onLineCount + ' - ' + getDateTime())
   });
 
   // 發送至每個 client
@@ -71,6 +71,14 @@ wss.on("connection", (ws, req) => {
     });
   };
 });
+
+// 取得Taipei時間
+function getDateTime () {
+  const nowDateTimeTW = new Date(Date.now()).toLocaleString("sv", {
+    timeZone: "Asia/Taipei"
+  });
+  return nowDateTimeTW
+}
 
 // 404 路由
 app.use((req, res) => {

@@ -1,13 +1,15 @@
 ### ws-Chat 聊天室
 
-使用 NodeJS Express, ws 套件， 透過 Websocket 技術實現多人即時線上聊天。
+使用 NodeJS Express, ws 套件，透過 Websocket 技術實現多人即時線上聊天。
 
 - 有命名功能，用戶可自訂顯示名稱
 - 有用戶進入及退出聊天室的提示
 - 有即時線上人數顯示
 - 有發射火箭的 Donate 抖內送禮特效
+- 些許不完善的功能將持續調整程式碼
 
-> DEMO WEB: [https://ws-chat-11hk.onrender.com/](https://ws-chat-11hk.onrender.com/)
+> DEMO WEB: [https://demo.koyeb.app/](https://demo.koyeb.app/)
+備用站: [https://ws-chat-11hk.onrender.com/](https://ws-chat-11hk.onrender.com/)
 
 `* 也許需要些時間讓服務甦醒`
 
