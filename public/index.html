@@ -64,7 +64,14 @@
         </template>
       </q-input>
     </div>
+
+    <q-separator />
+
   </div>
+
+  <footer>
+    <p align="center" style="padding-top: 1em; color: grey;">＊ 這是個 DEMO 頁面，程式碼在 <a href="https://github.com/ss-vip/ws-chat">Github</a></p>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.umd.prod.js"></script>
@@ -86,13 +93,15 @@
         let onlineCount = ref(0)
         let inputText = ref("")
         let msgWindow = ref("")
-        let ws
+        var ws
         const port = ':' + location.port
         const http = location.protocol === "http:" ? "ws://" : "wss://"
         const url = http + location.hostname + port
 
         // 訪客需先取暱稱
-        if(!userName.value || !ws) { inputName() }
+        if(!userName.value) {
+          inputName()
+        }
         function inputName () {
           connectWebSocket()
           $q.dialog({
@@ -106,11 +115,11 @@
             persistent: true
           }).onOk(data => {
             let notifyMsg = "抱歉，錯誤的暱稱，請重新輸入"
-            if(!userName.value) {
-              inputName()
-            } else {
+            if(!!userName.value) {
               notifyMsg = "Welcome! " + userName.value
               sendWS("setName", userName.value)
+            } else {
+              inputName()
             }
             $q.notify({
               message: notifyMsg,
@@ -120,7 +129,7 @@
         }
 
       // 初始連線 WebSocket
-      function connectWebSocket() {
+      async function connectWebSocket() {
         ws = new WebSocket(url);
 
         ws.onopen = function() {
@@ -180,7 +189,7 @@
 
       // 發送資料
       function sendWS(event, data) {
-        if(ws && event && data){
+        if(event && data){
           ws.send(JSON.stringify({event: event, data: data}));
         } else {
           $q.notify({
