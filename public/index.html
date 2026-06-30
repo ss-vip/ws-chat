@@ -3,7 +3,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ws-Chat</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.prod.css" rel="stylesheet" type="text/css">
   <style>
     #loading-overlay {
@@ -26,7 +30,7 @@
 </head>
 <body>
   <div id="loading-overlay"><div class="spinner"></div>loading...</div>
-  <div id="q-app" style="display:none">
+  <div id="q-app">
     <div class="q-pa-md">
       <q-layout view="lHh lpr lFf" container style="height: 400px" class="shadow-2 rounded-borders">
         <q-header elevated>
@@ -55,8 +59,7 @@
         </q-header>
 
         <q-page-container>
-          <q-page padding>
-            <!-- 聊天訊息 -->
+          <q-page padding style="overflow-y: auto;">
             <p id="msgArea" style="font-size:16px;white-space: pre-line;">{{ msgWindow }}</p>
           </q-page>
         </q-page-container>
@@ -95,7 +98,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.umd.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/lang/zh-TW.umd.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <script>
     const { useQuasar } = Quasar
@@ -236,7 +239,6 @@
     app.use(Quasar, { config: {} })
     app.mount('#q-app')
     document.getElementById('loading-overlay')?.remove()
-    document.getElementById('q-app').style.display = ''
   </script>
 </body>
 </html>
