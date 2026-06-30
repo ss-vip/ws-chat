@@ -45,9 +45,11 @@ wss.on("connection", (ws, req) => {
 
       switch (msg.event) {
         case "setName":
+          if (user.name === "Guest") {
+            sendToAll("message", `:+:+: 歡迎 ${msg.data} 加入聊天室 :+:+:`);
+          }
           user.name = msg.data;
           broadcastUserList();
-          sendToAll("message", `:+:+: 歡迎 ${msg.data} 加入聊天室 :+:+:`);
           break;
 
         case "sendRocket":
@@ -68,7 +70,9 @@ wss.on("connection", (ws, req) => {
     userMap.delete(userId);
     sendToAll("onlineCount", userMap.size);
     broadcastUserList();
-    sendToAll("message", `=== 掰掰 ${user?.name || "Guest"} 離開聊天室 ===`);
+    if (user && user.name !== "Guest") {
+      sendToAll("message", `=== 掰掰 ${user.name} 離開聊天室 ===`);
+    }
     console.log(`有人下線,目前人數:${userMap.size} - ${getDateTime()}`);
   });
 });
