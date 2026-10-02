@@ -8,12 +8,7 @@ const crypto = require("crypto");
 const port = process.env.PORT || 8080;
 const app = express();
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "dist")));
 
 const server = http.createServer(app);
 server.listen(port, () => {
@@ -44,21 +39,37 @@ wss.on("connection", (ws, req) => {
       if (!user) return;
 
       switch (msg.event) {
-        case "setName":
-          if (user.name === "Guest") {
-            sendToAll("message", `:+:+: 歡迎 ${msg.data} 加入聊天室 :+:+:`);
+        case "setName": {
+          const name = typeof msg.data === "string" ? msg.data.trim() : "";
+          if (!name || name.length > 20) {
+            sendTo(ws, "error", "暱稱需為 1-20 個字");
+            break;
           }
-          user.name = msg.data;
+          if (Array.from(userMap.values()).some(u => u.name === name)) {
+            sendTo(ws, "error", "暱稱已被使用，請換一個");
+            break;
+          }
+          if (user.name === "Guest") {
+            sendToAll("system", `歡迎 ${name} 加入聊天室`);
+          }
+          user.name = name;
           broadcastUserList();
           break;
+        }
 
-        case "sendRocket":
-          sendToAll("getRocket", `🎉 收到來自 ${msg.data} 發射的火箭 💖`);
+        case "sendRocket": {
+          const rocketName = typeof msg.data === "string" ? msg.data.trim() : "";
+          if (!rocketName) break;
+          sendToAll("getRocket", { name: rocketName });
           break;
+        }
 
-        default:
-          sendToAll("message", `😎 ${user.name}：${msg.data}`);
+        case "message": {
+          const text = typeof msg.data === "string" ? msg.data.trim() : "";
+          if (!text || text.length > 200) break;
+          sendToAll("message", { name: user.name, text });
           break;
+        }
       }
     } catch (err) {
       console.error("訊息解析錯誤:", err);
@@ -71,11 +82,17 @@ wss.on("connection", (ws, req) => {
     sendToAll("onlineCount", userMap.size);
     broadcastUserList();
     if (user && user.name !== "Guest") {
-      sendToAll("message", `=== 掰掰 ${user.name} 離開聊天室 ===`);
+      sendToAll("system", `${user.name} 離開了聊天室`);
     }
     console.log(`有人下線,目前人數:${userMap.size} - ${getDateTime()}`);
   });
 });
+
+function sendTo(client, event, data) {
+  if (client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify({ event, data }));
+  }
+}
 
 function sendToAll(event, data) {
   const eventData = JSON.stringify({ event, data });

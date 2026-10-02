@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>ws-Chat</title>
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; }
+      #root { height: 100%; display: flex; flex-direction: column; }
+      * { box-sizing: border-box; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.addEventListener("error", function (e) {
+        var d = document.createElement("pre");
+        d.style.cssText = "color:#b00;padding:8px;font-size:12px;white-space:pre-wrap;";
+        d.textContent = "Error: " + (e.message || e.error) + "\n" + (e.error && e.error.stack ? e.error.stack : "");
+        document.body.appendChild(d);
+      });
+    </script>
+    <script type="module" src="/main.jsx"></script>
+  </body>
+</html>
