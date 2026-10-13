@@ -2,30 +2,35 @@
   "name": "ws-chat",
   "version": "1.0.0",
   "description": "Websocket 簡單的聊天室",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "npm run build:web && node server.js",
+    "serve": "node server.js",
     "dev": "vite",
-    "build:web": "vite build"
+    "build:web": "vite build",
+    "test": "node test/login.test.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "allowScripts": {
+    "esbuild": true,
+    "fsevents": true
+  },
   "dependencies": {
-    "@tamagui/config": "^2.7.7",
-    "@tamagui/linear-gradient": "^2.7.7",
-    "@vitejs/plugin-react": "^6.1.1",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "lucide-react": "^1.49.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-native": "^0.86.3",
-    "react-native-web": "^0.21.3",
-    "tamagui": "^2.7.7",
-    "vite": "^8.3.2",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
     "ws": "^8.18.0"
   },
-  "scripts:build:web": "vite build",
-  "scripts:dev": "vite"
+  "devDependencies": {
+    "@tamagui/config": "^2.7.7",
+    "@tamagui/linear-gradient": "^2.7.7",
+    "@vitejs/plugin-react": "^4.4.1",
+    "lucide-react": "^0.520.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-native-web": "^0.21.4",
+    "tamagui": "^2.7.7",
+    "vite": "^6.3.5"
+  }
 }
